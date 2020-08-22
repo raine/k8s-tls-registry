@@ -227,19 +227,23 @@ At this stage we can install the registry, but we are going to install it withou
 Save the following as `install-registry.sh`:
 
 ```sh
-export SHA=$(head -c 16 /dev/urandom | shasum | cut -d " " -f 1)
+#!/usr/bin/env bash
+set -euo pipefail
+
+SHA=$(head -c 16 /dev/urandom | shasum | cut -d " " -f 1)
+export SHA
 export USER=admin
 
 echo $USER > registry-creds.txt
-echo $SHA >> registry-creds.txt
+echo "$SHA" >> registry-creds.txt
 
-docker run --entrypoint htpasswd registry:2.7.0 -Bbn admin "$SHA" > ./htpasswd
+docker run --entrypoint htpasswd registry:2 -Bbn admin $SHA > ./htpasswd
 
-helm install stable/docker-registry \
-  --name private-registry \
+helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+helm install private-registry stable/docker-registry \
   --namespace default \
   --set persistence.enabled=false \
-  --set secrets.htpasswd=$(cat ./htpasswd)
+  --set secrets.htpasswd="$(cat ./htpasswd)"
 ```
 
 You will need to have `docker` installed and ready for this step. If it's not started, then start it up now.
