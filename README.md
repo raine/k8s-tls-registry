@@ -233,7 +233,7 @@ export USER=admin
 echo $USER > registry-creds.txt
 echo $SHA >> registry-creds.txt
 
-docker run --entrypoint htpasswd registry:2 -Bbn admin $SHA > ./htpasswd
+docker run --entrypoint htpasswd registry:2.7.0 -Bbn admin "$SHA" > ./htpasswd
 
 helm install stable/docker-registry \
   --name private-registry \
